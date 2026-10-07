@@ -2,15 +2,12 @@ const express = require("express");
 
 const app = express();
 
-app.use("/admin", (req, res, next) => {
-  console.log("Default handler route");
-  const token = "xsdfayz";
-  const isAuthorised = token === "xyz";
-  if (!isAuthorised) {
-    res.status(401).send("Unauthorised Request");
-  } else {
-    next();
-  }
+const { adminAuth, userAuth } = require("../middlewares/utils");
+
+app.use("/admin", adminAuth);
+
+app.get("/user", userAuth, (req, res) => {
+  res.send("User Data");
 });
 
 app.get("/admin/getAllData", (req, res) => {
