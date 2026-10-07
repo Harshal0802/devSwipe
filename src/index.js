@@ -2,16 +2,23 @@ const express = require("express");
 
 const app = express();
 
-app.use("/test", (req, res) => {
-  res.send("Welcome to testing the Node.JS app");
+app.use("/admin", (req, res, next) => {
+  console.log("Default handler route");
+  const token = "xsdfayz";
+  const isAuthorised = token === "xyz";
+  if (!isAuthorised) {
+    res.status(401).send("Unauthorised Request");
+  } else {
+    next();
+  }
 });
 
-app.use("/hello", (req, res) => {
-  res.send("Hello from NodeJS");
+app.get("/admin/getAllData", (req, res) => {
+  res.send("Submitted all data");
 });
 
-app.use("/", (req, res) => {
-  res.send("welcome to learning Node.JS");
+app.delete("/admin/deleteAllData", (req, res) => {
+  res.send("All Data is deleted");
 });
 
 app.listen(7777, () => {
