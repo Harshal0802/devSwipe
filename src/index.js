@@ -4,21 +4,39 @@ const { connectDB } = require("./config/database");
 const app = express();
 const { User } = require("./models/user");
 
+// To convert the JSON object to JS object we use the middleware
+app.use(express.json());
+
+// Create a user and store the user details into the database
 app.post("/signup", async (req, res) => {
-  const user = new User({
-    firstName: "Tom",
-    lastName: "Holland",
-    email: "tom@gmail.com",
-    password: "Tom@123",
-    age: 30,
-    gender: "male",
-  });
+  const user = new User(req.body);
 
   try {
     await user.save();
     res.send("User saved successfully");
   } catch (err) {
     res.status(400).send("Error while saving the user" + err.message);
+  }
+});
+
+// Get user by email
+app.post("/user", async (req, res) => {
+  console.log(req.body);
+  try {
+    const user = await User.find({ email: req.body.emailId });
+    res.send(user);
+  } catch (err) {
+    res.status(404).send("Something went wrong");
+  }
+});
+
+//To get the all users
+app.get("/feed", async (req, res) => {
+  try {
+    const user = await User.find({});
+    res.send(user);
+  } catch (err) {
+    res.status(404).send("Something went wrong");
   }
 });
 
