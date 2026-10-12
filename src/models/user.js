@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: trusted,
+      required: true,
       minLength: 3,
       maxLength: 50,
       trim: true,
