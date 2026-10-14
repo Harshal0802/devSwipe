@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 8,
-      maxLength: 50,
+      maxLength: 100,
       trim: true,
       validate(value) {
         if (!validator.isStrongPassword(value)) {
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
       default:
         "https://i.pinimg.com/736x/6e/59/95/6e599501252c23bcf02658617b29c894.jpg",
       validate(value) {
-        if (validator.isURL(value)) {
+        if (!validator.isURL(value)) {
           throw new Error("Photo URL is not valid");
         }
       },
@@ -74,6 +74,7 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String],
+      default: ["javascript", "node.js"],
     },
   },
   {
