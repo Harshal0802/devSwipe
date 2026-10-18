@@ -7,6 +7,7 @@ const { validators } = require("./utils/validators");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("../src/middlewares/utils");
 
 // To convert the JSON object to JS object we use the middleware
 app.use(express.json());
@@ -50,7 +51,6 @@ app.post("/login", async (req, res) => {
       const token = await jwt.sign({ _id: user._id }, "DevSwipe@2026");
       // Set a JWT token in the cookies
       res.cookie("token", token);
-      console.log("cookie set successfully");
       res.send("Login Successful");
     } else {
       res.send("Invalid Credentials");
@@ -60,82 +60,23 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Get user by email
-app.post("/user", async (req, res) => {
-  console.log(req.body);
-  try {
-    const user = await User.find({ email: req.body.emailId });
-    res.send(user);
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
-
-//To get the all users
-app.get("/feed", async (req, res) => {
-  try {
-    const user = await User.find({});
-    res.send(user);
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
-
-// To delete the user by userId
-app.delete("/deleteUser", async (req, res) => {
-  try {
-    const userId = req.body.userId;
-    await User.findByIdAndDelete(userId);
-    console.log("User Deleted Successfully");
-    res.send("User Deleted Successfully");
-  } catch (err) {
-    res.status(401).send("Something went wrong");
-  }
-});
-
-// To update the user details by userId
-app.patch("/updateUser/:userId", async (req, res) => {
-  try {
-    const userId = req.params?.userId;
-    const data = req.body;
-    const ALLOWED_UPDATED = ["photoUrl", "age", "gender", "about", "skills"];
-    const isUpdateAllowed = Object.keys(data).every((k) => {
-      ALLOWED_UPDATED.includes(k);
-    });
-    if (!isUpdateAllowed) {
-      throw new Error("Update not allowed");
-    }
-    if (data?.skills.length > 10) {
-      throw new Error("Skills cannot be more than 10");
-    }
-    await User.findByIdAndUpdate(userId, data, {
-      returnDocument: "after",
-      runValidators: true,
-    });
-    res.send("User updated successfully");
-  } catch (err) {
-    res.status(401).send("Something went wrong");
-  }
-});
-
 // To get the profile of a logged in user
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) {
-      throw new Error("Invalid Token");
-    }
-    const isValidToken = await jwt.verify(token, "DevSwipe@2026");
-    const { _id } = isValidToken;
-    console.log("cookiesNew", isValidToken);
-
-    const user = await User.findById(_id);
-    if (!user) {
-      throw new Error("User does not found");
-    }
+    const user = req.user;
     res.send(user);
   } catch (err) {
     res.status(401).send("Something went wrong" + err.message);
+  }
+});
+
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
+  try {
+    const userProfile = req.user;
+
+    res.send(userProfile?.firstName + " has sent connection request");
+  } catch (err) {
+    res.status(401).send("ERROR" + err.message);
   }
 });
 
