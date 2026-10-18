@@ -43,20 +43,21 @@ app.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
-      res.send("Invalid Credentials");
+      throw new Error("Invalid Credentials");
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.validatePassword(password);
+
     if (isPasswordValid) {
       // Create a JWT token
-      const token = await jwt.sign({ _id: user._id }, "DevSwipe@2026");
+      const token = await user.getJWT();
       // Set a JWT token in the cookies
       res.cookie("token", token);
       res.send("Login Successful");
     } else {
-      res.send("Invalid Credentials");
+      throw new Error("Invalid Credentials");
     }
   } catch (err) {
-    throw new Error("Invalid Credentials");
+    res.status(400).send("ERROR: " + err.message);
   }
 });
 
