@@ -1,6 +1,11 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const { userAuth } = require("../middlewares/utils");
-const { validateEditProfileData } = require("../utils/validators");
+const {
+  validateEditProfileData,
+  validateForgetPasswordData,
+} = require("../utils/validators");
+const { User } = require("../models/user");
 
 const profileRouter = express.Router();
 
@@ -33,6 +38,37 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     });
   } catch (err) {
     res.status(401).send("ERROR: " + err.message);
+  }
+});
+
+profileRouter.post("/profile/change-password", userAuth, async (req, res) => {
+  const { emailId, newPassword } = req.body;
+
+  try {
+    validateForgetPasswordData(req);
+
+    const user = req.user;
+
+    if (user.emailId != emailId) {
+      return res.status(404).json({ message: "User is different" });
+    }
+
+    const forgetPasswordUser = await User.findOne({
+      emailId: emailId,
+    });
+
+    if (!forgetPasswordUser) {
+      throw new Error("User not found");
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    forgetPasswordUser.password = hashPassword;
+
+    await forgetPasswordUser.save();
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
   }
 });
 
