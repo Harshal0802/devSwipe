@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const { authRouter } = require("../src/routes/auth");
 const { profileRouter } = require("../src/routes/profile");
 const { requestRouter } = require("../src/routes/request");
+const { userRouter } = require("../src/routes/user");
 
 // To convert the JSON object to JS object we use the middleware
 app.use(express.json());
@@ -15,6 +16,7 @@ app.use(cookieParser());
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 
 connectDB()
   .then(() => {

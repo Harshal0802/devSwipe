@@ -1,6 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const { userAuth } = require("../middlewares/utils");
+const { userAuth } = require("../middlewares/auth");
 const {
   validateEditProfileData,
   validateForgetPasswordData,
