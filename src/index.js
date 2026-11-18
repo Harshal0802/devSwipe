@@ -7,7 +7,14 @@ const { authRouter } = require("../src/routes/auth");
 const { profileRouter } = require("../src/routes/profile");
 const { requestRouter } = require("../src/routes/request");
 const { userRouter } = require("../src/routes/user");
+const cors = require("cors");
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 // To convert the JSON object to JS object we use the middleware
 app.use(express.json());
 // To parse the cookie and check in the console
